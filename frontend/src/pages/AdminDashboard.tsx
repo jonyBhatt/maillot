@@ -80,9 +80,16 @@ const AdminDashboard = () => {
         }
     };
 
+    const varifiedToken = localStorage.getItem('userInfo');
+
+
     const fetchOrders = async () => {
         try {
-            const response = await fetch(`${baseUrl}/orders`);
+            const response = await fetch(`${baseUrl}/orders`, {
+                headers: {
+                    Authorization: `Bearer ${varifiedToken}`
+                }
+            });
             const data = await response.json();
             console.log("Order Log: ", data);
 

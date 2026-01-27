@@ -1,4 +1,6 @@
 const Order = require('../models/order.model');
+const sendEmail = require('../utils/sendEmail');
+const { generateOrderEmail, generateAdminOrderEmail } = require('../utils/emailTemplates');
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -31,6 +33,26 @@ const addOrderItems = async (req, res) => {
             // If we want to link to a user if logged in, we can add logic here checking req.user
 
             const createdOrder = await order.save();
+
+            // Send Emails
+            try {
+                // Email to Customer
+                await sendEmail({
+                    email: customerDetails.email,
+                    subject: 'Order Confirmation - YourMaillot',
+                    html: generateOrderEmail(createdOrder)
+                });
+
+                // Email to Admin
+                await sendEmail({
+                    email: process.env.SMTP_USER,
+                    subject: 'New Order Received',
+                    html: generateAdminOrderEmail(createdOrder)
+                });
+            } catch (emailError) {
+                console.error('Error sending email:', emailError);
+            }
+
             res.status(201).json(createdOrder);
         }
     } catch (error) {
@@ -112,7 +134,7 @@ const updateOrderToDelivered = async (req, res) => {
 // @access  Private/Admin
 const getOrders = async (req, res) => {
     try {
-        const orders = await Order.find({}).populate('user', 'id name'); // Populate user if user field exists
+        const orders = await Order.find({}) // Populate user if user field exists
         res.json(orders);
     } catch (error) {
         res.status(500).json({ message: error.message });
