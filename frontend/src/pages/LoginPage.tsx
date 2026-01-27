@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { toast } from 'react-hot-toast';
 import { baseUrl } from '../utils/baseUrl';
 
+
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -23,9 +24,10 @@ const LoginPage = () => {
             });
 
             const data = await response.json();
+            console.log("Login Data: ", data);
 
             if (response.ok) {
-                localStorage.setItem('userInfo', JSON.stringify(data));
+                localStorage.setItem('userInfo', data.token);
                 toast.success('Successfully logged in!');
                 navigate('/');
             } else {
