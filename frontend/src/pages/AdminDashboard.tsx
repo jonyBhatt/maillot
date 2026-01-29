@@ -91,7 +91,7 @@ const AdminDashboard = () => {
                 }
             });
             const data = await response.json();
-            console.log("Order Log: ", data);
+
 
             setOrders(data);
         } catch (error) {
@@ -787,14 +787,30 @@ const AdminDashboard = () => {
                             </div>
 
                             <div className="form-group">
-                                <label>Category</label>
-                                <input
-                                    type="text"
+                                <label>League Category</label>
+                                <select
                                     value={productForm.category}
                                     onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
-                                    placeholder="e.g., Football, Basketball, Tennis"
                                     required
-                                />
+                                    className="category-select"
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.75rem',
+                                        borderRadius: '8px',
+                                        border: '1px solid #e2e8f0',
+                                        backgroundColor: '#f8fafc',
+                                        fontSize: '0.95rem',
+                                        color: '#1e293b'
+                                    }}
+                                >
+                                    <option value="">Select League</option>
+                                    <option value="La Liga">La Liga</option>
+                                    <option value="Premier League">Premier League</option>
+                                    <option value="Ligue 1">Ligue 1</option>
+                                    <option value="Bundesliga">Bundesliga</option>
+                                    <option value="Serie A">Serie A</option>
+                                    <option value="Other">Other</option>
+                                </select>
                             </div>
 
                             {/* Image Upload Section */}

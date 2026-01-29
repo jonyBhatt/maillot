@@ -20,7 +20,7 @@ interface Product {
     badge: string | null;
 }
 
-const categories = ["All", "La Liga", "Premier League", "Ligue 1", "Bundesliga", "Serie A"];
+const categories = ["All", "La Liga", "Premier League", "Ligue 1", "Bundesliga", "Serie A", "Other"];
 
 const ProductsPage: React.FC = () => {
     const { addToCart } = useCart();
@@ -49,11 +49,11 @@ const ProductsPage: React.FC = () => {
             try {
                 const res = await fetch(`${baseUrl}/products`,);
 
-                console.log(res)
+
 
                 if (!res.ok) throw new Error("Failed to fetch products");
                 const data = await res.json();
-                console.log(data);
+
 
 
                 // Map backend data to frontend structure

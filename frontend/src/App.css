@@ -2532,7 +2532,7 @@ footer {}
 
 /* Order Summary */
 .order-summary {
-  background: var(--light-100);
+  background: var(--dark-500);
   border-radius: var(--radius-lg);
   padding: 28px;
   height: fit-content;
@@ -2554,7 +2554,7 @@ footer {}
 }
 
 .summary-row span:first-child {
-  color: var(--dark-600);
+  color: var(--light-400);
 }
 
 .summary-row.discount span {
@@ -2564,10 +2564,11 @@ footer {}
 .summary-row.total {
   font-size: 1.25rem;
   font-weight: 700;
+
 }
 
 .summary-row.total span {
-  color: var(--dark-800);
+  color: var(--light-100);
 }
 
 .summary-divider {
