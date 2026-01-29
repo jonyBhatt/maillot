@@ -24,7 +24,7 @@ const LoginPage = () => {
             });
 
             const data = await response.json();
-            console.log("Login Data: ", data);
+
 
             if (response.ok) {
                 localStorage.setItem('userInfo', data.token);

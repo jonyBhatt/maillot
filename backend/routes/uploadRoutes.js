@@ -23,7 +23,7 @@ router.post('/', upload.array('images'), async (req, res) => {
                     },
                     (error, result) => {
                         if (error) {
-                            console.error('Cloudinary Upload Error:', error);
+
                             reject(error);
                         } else {
                             resolve(result.secure_url);
@@ -41,7 +41,7 @@ router.post('/', upload.array('images'), async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Upload Process Error:', error);
+
         res.status(500).json({
             message: 'Image upload failed',
             error: error.message

@@ -66,7 +66,7 @@ const CartPage: React.FC = () => {
                     duration: 5000,
                     icon: '🎉',
                 });
-                console.log("Order created:", data);
+
             } else {
                 toast.error(data.message || "Failed to place order");
                 console.error("Order failed:", data);
