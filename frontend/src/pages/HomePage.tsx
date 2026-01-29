@@ -13,8 +13,11 @@ import slider4 from "../assets/images/slider/barca.png";
 import slider5 from "../assets/images/slider/IMG_5370.png";
 import slider6 from "../assets/images/slider/IMG_5373.png";
 import Navbar from "../components/Navbar";
+import { useCart } from "../context/CartContext";
+import Footer from "../components/Footer";
 
 const Home: React.FC = () => {
+    const { addToCart } = useCart();
     const [currentSlide, setCurrentSlide] = useState(0);
     const slides = [slider1, slider2, slider3, slider4, slider5, slider6];
 
@@ -32,10 +35,24 @@ const Home: React.FC = () => {
     ];
 
     const featuredProducts = [
-        { id: 1, name: "Real Madrid Home Kit", price: 89, image: jerseyBlack, badge: "New Season" },
-        { id: 2, name: "Barcelona Away Kit", price: 85, image: jerseyOrange, badge: "Best Seller" },
-        { id: 3, name: "Premium Training Kit", price: 65, image: madrid, badge: "Sale" },
+        { id: "1", name: "Real Madrid Home Kit", price: 89, image: jerseyBlack, badge: "New Season" },
+        { id: "2", name: "Barcelona Away Kit", price: 85, image: jerseyOrange, badge: "Best Seller" },
+        { id: "3", name: "Premium Training Kit", price: 65, image: madrid, badge: "Sale" },
     ];
+
+    const handleAddToCart = (e: React.MouseEvent, product: any) => {
+        e.preventDefault();
+        e.stopPropagation();
+        addToCart({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            size: "M", // Default for quick add
+            color: "Standard",
+            quantity: 1
+        });
+    };
 
     return (
         <div className="homepage" >
@@ -202,7 +219,10 @@ const Home: React.FC = () => {
                                             <button className="quick-view-btn">
                                                 <i className="fa-solid fa-eye"></i>
                                             </button>
-                                            <button className="add-cart-btn">
+                                            <button
+                                                className="add-cart-btn"
+                                                onClick={(e) => handleAddToCart(e, product)}
+                                            >
                                                 <i className="fa-solid fa-cart-plus"></i>
                                             </button>
                                         </div>
@@ -284,6 +304,8 @@ const Home: React.FC = () => {
                     </div>
                 </section>
             </div>
+
+            <Footer />
 
         </div>
     );

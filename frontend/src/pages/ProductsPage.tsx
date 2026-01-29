@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router";
 import Navbar from "../components/Navbar";
 import { baseUrl } from "../utils/baseUrl";
+import { useCart } from "../context/CartContext";
 
 // Import images for fallback/loading
 import jerseyBlack from "../assets/images/jersey_black.png";
@@ -22,11 +23,26 @@ interface Product {
 const categories = ["All", "La Liga", "Premier League", "Ligue 1", "Bundesliga", "Serie A"];
 
 const ProductsPage: React.FC = () => {
+    const { addToCart } = useCart();
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [sortBy, setSortBy] = useState("featured");
     const [searchQuery, setSearchQuery] = useState("");
+
+    const handleAddToCart = (e: React.MouseEvent, product: Product) => {
+        e.preventDefault();
+        e.stopPropagation();
+        addToCart({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            size: "M", // Default
+            color: "Standard",
+            quantity: 1
+        });
+    };
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -178,7 +194,10 @@ const ProductsPage: React.FC = () => {
                                                     <button className="action-btn">
                                                         <i className="fa-regular fa-heart"></i>
                                                     </button>
-                                                    <button className="action-btn primary">
+                                                    <button
+                                                        className="action-btn primary"
+                                                        onClick={(e) => handleAddToCart(e, product)}
+                                                    >
                                                         <i className="fa-solid fa-cart-plus"></i>
                                                     </button>
                                                 </div>

@@ -180,7 +180,10 @@ const AdminDashboard = () => {
 
             const response = await fetch(url, {
                 method,
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${varifiedToken}`
+                },
                 body: JSON.stringify(productData)
             });
 
@@ -217,7 +220,10 @@ const AdminDashboard = () => {
 
         try {
             const response = await fetch(`${baseUrl}/products/${productId}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${varifiedToken}`
+                }
             });
 
             if (response.ok) {
@@ -236,7 +242,10 @@ const AdminDashboard = () => {
         try {
             const response = await fetch(`${baseUrl}/orders/${orderId}/status`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${varifiedToken}`
+                },
                 body: JSON.stringify({ status: newStatus })
             });
 

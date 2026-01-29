@@ -3,47 +3,22 @@ import { Link } from "react-router";
 import Navbar from "../components/Navbar";
 import CheckoutModal from "../components/CheckoutModal";
 import { toast } from "react-hot-toast";
+import { baseUrl } from "../utils/baseUrl";
 
 // Import images
-import jerseyBlack from "../assets/images/jersey_black.png";
-import jerseyOrange from "../assets/images/jersey_orange.png";
+// import jerseyBlack from "../assets/images/jersey_black.png";
+// import jerseyOrange from "../assets/images/jersey_orange.png";
 
-interface CartItem {
-    id: number;
-    name: string;
-    price: number;
-    image: string;
-    size: string;
-    color: string;
-    quantity: number;
-}
-
-// Mock cart data
-const initialCartItems: CartItem[] = [
-    { id: 1, name: "Real Madrid Home Kit 2026", price: 89, image: jerseyBlack, size: "L", color: "White", quantity: 1 },
-    { id: 2, name: "Barcelona Away Kit 2026", price: 85, image: jerseyOrange, size: "M", color: "Orange", quantity: 2 },
-];
+import { useCart } from "../context/CartContext";
 
 const CartPage: React.FC = () => {
-    const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const { cartItems, updateQuantity, removeFromCart, clearCart, cartTotal } = useCart();
     const [promoCode, setPromoCode] = useState("");
     const [promoApplied, setPromoApplied] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const updateQuantity = (id: number, newQuantity: number) => {
-        if (newQuantity < 1) return;
-        setCartItems(items =>
-            items.map(item =>
-                item.id === id ? { ...item, quantity: newQuantity } : item
-            )
-        );
-    };
-
-    const removeItem = (id: number) => {
-        setCartItems(items => items.filter(item => item.id !== id));
-    };
-
-    const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    // subtotal is now cartTotal from context
+    const subtotal = cartTotal;
     const shipping = subtotal > 100 ? 0 : 10;
     const discount = promoApplied ? subtotal * 0.1 : 0;
     const total = subtotal + shipping - discount;
@@ -57,34 +32,54 @@ const CartPage: React.FC = () => {
         }
     };
 
-    const handleCheckoutSubmit = (details: any) => {
-        // Here we would call the API
-        console.log("Order submitted:", {
-            customerDetails: details,
-            orderItems: cartItems.map(item => ({
-                product: item.id, // Assuming ID is the product ID
-                name: item.name,
-                qty: item.quantity,
-                price: item.price,
-                image: item.image
-            })),
-            itemsPrice: subtotal,
-            shippingPrice: shipping,
-            totalPrice: total,
-            taxPrice: 0, // Placeholder
-        });
+    const handleCheckoutSubmit = async (details: any) => {
+        try {
+            const orderData = {
+                orderItems: cartItems.map(item => ({
+                    product: item.id, // Ensure these are valid ObjectIds in a real scenario
+                    name: item.name,
+                    qty: item.quantity,
+                    price: item.price,
+                    image: item.image
+                })),
+                customerDetails: details,
+                itemsPrice: subtotal,
+                shippingPrice: shipping,
+                taxPrice: 0,
+                totalPrice: total,
+            };
 
-        setIsModalOpen(false);
-        setCartItems([]);
-        toast.success("Order placed successfully! Check your email for details.", {
-            duration: 5000,
-            icon: '🎉',
-        });
+            const response = await fetch(`${baseUrl}/orders`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setIsModalOpen(false);
+                clearCart();
+                toast.success("Order placed successfully! Check your email for details.", {
+                    duration: 5000,
+                    icon: '🎉',
+                });
+                console.log("Order created:", data);
+            } else {
+                toast.error(data.message || "Failed to place order");
+                console.error("Order failed:", data);
+            }
+        } catch (error) {
+            console.error("Error placing order:", error);
+            toast.error("Something went wrong. Please try again.");
+        }
     };
 
     return (
         <div className="cart-page">
-            <Navbar cartCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)} />
+            <Navbar />
 
             {/* Page Header */}
             <section className="cart-header">
@@ -109,7 +104,7 @@ const CartPage: React.FC = () => {
                                 </div>
 
                                 {cartItems.map(item => (
-                                    <div key={item.id} className="cart-item">
+                                    <div key={`${item.id}-${item.size}-${item.color}`} className="cart-item">
                                         <div className="item-product">
                                             <div className="item-image">
                                                 <img src={item.image} alt={item.name} />
@@ -123,18 +118,18 @@ const CartPage: React.FC = () => {
                                             ${item.price}.00
                                         </div>
                                         <div className="item-quantity">
-                                            <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>
+                                            <button onClick={() => updateQuantity(item.id, item.size, item.color, item.quantity - 1)}>
                                                 <i className="fa-solid fa-minus"></i>
                                             </button>
                                             <span>{item.quantity}</span>
-                                            <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>
+                                            <button onClick={() => updateQuantity(item.id, item.size, item.color, item.quantity + 1)}>
                                                 <i className="fa-solid fa-plus"></i>
                                             </button>
                                         </div>
                                         <div className="item-total">
                                             ${(item.price * item.quantity).toFixed(2)}
                                         </div>
-                                        <button className="item-remove" onClick={() => removeItem(item.id)}>
+                                        <button className="item-remove" onClick={() => removeFromCart(item.id, item.size, item.color)}>
                                             <i className="fa-solid fa-trash"></i>
                                         </button>
                                     </div>
@@ -145,7 +140,7 @@ const CartPage: React.FC = () => {
                                         <i className="fa-solid fa-arrow-left"></i>
                                         Continue Shopping
                                     </Link>
-                                    <button className="clear-cart" onClick={() => setCartItems([])}>
+                                    <button className="clear-cart" onClick={clearCart}>
                                         Clear Cart
                                     </button>
                                 </div>

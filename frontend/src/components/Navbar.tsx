@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, Link } from "react-router";
+import { NavLink, Link, useNavigate } from "react-router";
+import { useCart } from "../context/CartContext";
 
-interface NavbarProps {
-    cartCount?: number;
-}
-
-const Navbar: React.FC<NavbarProps> = ({ cartCount = 0 }) => {
+const Navbar: React.FC = () => {
+    const { cartCount } = useCart();
+    const navigate = useNavigate();
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const token = localStorage.getItem("userInfo");
+
+    const handleLogout = () => {
+        localStorage.clear();
+        navigate("/login");
+    };
 
     useEffect(() => {
         const handleScroll = () => {
@@ -59,6 +64,18 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount = 0 }) => {
                     >
                         About
                     </NavLink>
+                    {
+                        token && (
+                            <NavLink
+                                to="/admin"
+                                className={({ isActive }: { isActive: boolean }) =>
+                                    `nav-menu-link ${isActive ? "active" : ""}`
+                                }
+                            >
+                                Admin
+                            </NavLink>
+                        )
+                    }
                 </div>
 
                 {/* Right Section - Search & Cart */}
@@ -77,10 +94,18 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount = 0 }) => {
                         )}
                     </Link>
 
-                    {/* Login */}
-                    <Link to="/login" className="nav-cart" aria-label="Login">
-                        <i className="fa-solid fa-user"></i>
-                    </Link>
+                    {/* Login/Logout */}
+                    {
+                        !token ? (
+                            <Link to="/login" className="nav-cart" aria-label="Login">
+                                <i className="fa-solid fa-user"></i>
+                            </Link>
+                        ) : (
+                            <button onClick={handleLogout} className="nav-cart" aria-label="Logout" style={{ background: "none", border: "none", cursor: "pointer" }}>
+                                <i className="fa-solid fa-right-from-bracket"></i>
+                            </button>
+                        )
+                    }
 
                     {/* Mobile Menu Toggle */}
                     <button
@@ -119,26 +144,20 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount = 0 }) => {
                     <i className="fa-solid fa-shirt"></i>
                     Products
                 </NavLink>
-                <NavLink
-                    to="/matches"
-                    className={({ isActive }: { isActive: boolean }) =>
-                        `mobile-link ${isActive ? "active" : ""}`
-                    }
-                    onClick={() => setMobileMenuOpen(false)}
-                >
-                    <i className="fa-solid fa-futbol"></i>
-                    Matches
-                </NavLink>
-                <NavLink
-                    to="/players"
-                    className={({ isActive }: { isActive: boolean }) =>
-                        `mobile-link ${isActive ? "active" : ""}`
-                    }
-                    onClick={() => setMobileMenuOpen(false)}
-                >
-                    <i className="fa-solid fa-users"></i>
-                    Players
-                </NavLink>
+                {
+                    token && (
+                        <NavLink
+                            to="/admin"
+                            className={({ isActive }: { isActive: boolean }) =>
+                                `mobile-link ${isActive ? "active" : ""}`
+                            }
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            <i className="fa-solid fa-user"></i>
+                            Admin
+                        </NavLink>
+                    )
+                }
                 <NavLink
                     to="/about"
                     className={({ isActive }: { isActive: boolean }) =>
@@ -163,16 +182,32 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount = 0 }) => {
                     )}
                 </NavLink>
 
-                <NavLink
-                    to="/login"
-                    className={({ isActive }: { isActive: boolean }) =>
-                        `mobile-link ${isActive ? "active" : ""}`
-                    }
-                    onClick={() => setMobileMenuOpen(false)}
-                >
-                    <i className="fa-solid fa-user"></i>
-                    Login
-                </NavLink>
+                {
+                    !token ? (
+                        <NavLink
+                            to="/login"
+                            className={({ isActive }: { isActive: boolean }) =>
+                                `mobile-link ${isActive ? "active" : ""}`
+                            }
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            <i className="fa-solid fa-user"></i>
+                            Login
+                        </NavLink>
+                    ) : (
+                        <button
+                            className="mobile-link"
+                            onClick={() => {
+                                setMobileMenuOpen(false);
+                                handleLogout();
+                            }}
+                            style={{ background: "none", border: "none", cursor: "pointer", textAlign: "left" }}
+                        >
+                            <i className="fa-solid fa-right-from-bracket"></i>
+                            Logout
+                        </button>
+                    )
+                }
 
                 {/* Mobile Search */}
                 <div className="mobile-search">
